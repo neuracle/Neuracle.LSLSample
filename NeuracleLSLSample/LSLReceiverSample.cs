@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+ * Author: JI Zhiqiang, jizhiqiang@neuracle.cn
+ */
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
