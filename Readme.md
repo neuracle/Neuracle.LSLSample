@@ -20,11 +20,13 @@
 4. This sample project provides examples of:
    1. For how to receive Triggers forwarded by the NeuroHub system, refer to Class NeuracleLSLReceiver's ReceiveTrigger() method
    2. For how to receive EEG data forwarded by the NeuroHub system, refer to Class NeuracleLSLReceiver's ReceiveBiosimData() method
+5. You can find the link of this project from https://labstreaminglayer.readthedocs.io/info/supported_devices.html
 
-## 5.Licence
+
+## Licence
 Copyright (c) 2023 neuracle, Inc. All Rights Reserved. http://neuracle.cn
 
-## 6.Contact
+## Contact
 Support Team
 
 email: support@neuracle.cn
