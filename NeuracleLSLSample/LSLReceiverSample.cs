@@ -18,7 +18,19 @@ namespace Neuracle.LSLSample
             //"FFFFFF21" is the SerialNumber of an Neruacle device
             //"SKT" is one type collector of Neuracle product
             //Please contact Neruacle company for details
-            NeuracleLSLReceiver neuracleLSLReceiver = new NeuracleLSLReceiver("FFFFFF21_SKT","SKT");
+
+            //Just for debug
+            string biosimDataStreamName = "FFFFFF21_SKT";
+            string biosimDataStreamType = "SKT";
+
+            if(args.Length == 2)
+            {
+                biosimDataStreamName = args[0];
+                biosimDataStreamType = args[1];
+                Console.WriteLine($"args[0] = {args[0]}, args[1] = {args[1]}");
+            }
+
+            NeuracleLSLReceiver neuracleLSLReceiver = new NeuracleLSLReceiver(biosimDataStreamName, biosimDataStreamType);
 
             Console.WriteLine($"Start receive triggers...");
             Task.Run(() => neuracleLSLReceiver.ReceiveTrigger());
@@ -195,7 +207,7 @@ namespace Neuracle.LSLSample
             results.DisposeArray();
 #if DEBUG
             //CSV file to save the biosim data for debugging
-            StreamWriter _sw = new StreamWriter($".\\{_biosimDataStreamName}_LSLSubscriber.csv", false);
+            StreamWriter _sw = new StreamWriter($".\\{_biosimDataStreamName}_LSLSubscriber_{DateTime.Now.ToString("yy_MM_dd_hhmmss")}.csv", false);
 #endif
 
             // read samples
