@@ -15,9 +15,10 @@ namespace Neuracle.LSLSample
         static void Main(string[] args)
         {
             //Construct a receiver
-            //"7FFFFFFF" is the SerialNumber of an Neruacle device
+            //"FFFFFF21" is the SerialNumber of an Neruacle device
+            //"SKT" is one type collector of Neuracle product
             //Please contact Neruacle company for details
-            NeuracleLSLReceiver neuracleLSLReceiver = new NeuracleLSLReceiver("7FFFFFFF_EEG");
+            NeuracleLSLReceiver neuracleLSLReceiver = new NeuracleLSLReceiver("FFFFFF21_SKT","SKT");
 
             Console.WriteLine($"Start receive triggers...");
             Task.Run(() => neuracleLSLReceiver.ReceiveTrigger());
@@ -211,7 +212,7 @@ namespace Neuracle.LSLSample
                 string dumpString = "";
                 for (int s = 0; s < num; s++)
                 {
-                    dumpString = ((int)(timestamps[s]*1000)).ToString() + ",";
+                    dumpString = ((uint)(timestamps[s]*1000)).ToString() + ",";
                     for (int c = 0; c < channelCount; c++)
                     {
                         //Console.Write("\t{0}", buffer[s, c]);
