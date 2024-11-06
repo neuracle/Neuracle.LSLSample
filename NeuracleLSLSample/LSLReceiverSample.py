@@ -9,8 +9,8 @@
  	v1.0: 2023-09-20，read lsl streamer
 @ Copyright (c) 2016 Neuracle, Inc. All Rights Reserved. http://neuracle.cn/
 """
-
-from pylsl import StreamInlet, resolve_stream
+import time
+from pylsl import StreamInlet, resolve_stream, StreamInfo, StreamOutlet
 import matplotlib.pyplot as plt
 import numpy as np
 def readMarkersStreamer():
@@ -103,6 +103,13 @@ def readOtherStreamer():
         return raw, srate, nchan
 
 
+def sendLSLMarker(outletStreamerName):
+    marker_info = StreamInfo(outletStreamerName, 'Markers', 1, 0, 'int32', 'test123')
+    marker_outlet = StreamOutlet(marker_info)
+    ### here only show a example, send triggers, time interval is about 1 second.
+    for i in range(255):
+        marker_outlet.push_sample(x=[i])
+        time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -129,3 +136,7 @@ if __name__ == '__main__':
         plt.figure()
         plt.plot(t_raw, raw[:, 1])  # plot second channel
         plt.show()
+
+    # Example4: LSL marker is sent via this LSL stream
+    StreamerName = 'LSLTrigger'
+    sendLSLMarker(outletStreamerName=StreamerName)
