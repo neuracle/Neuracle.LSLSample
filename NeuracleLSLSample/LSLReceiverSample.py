@@ -7,6 +7,7 @@
 @File ：LSLReceiverSample.py
 @ Versions:
  	v1.0: 2023-09-20，read lsl streamer
+ 	v1.1: 2024-11-06. LSL marker is sent via this LSL stream
 @ Copyright (c) 2016 Neuracle, Inc. All Rights Reserved. http://neuracle.cn/
 """
 import time
