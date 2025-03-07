@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,26 +15,33 @@ namespace Neuracle.LSLSample
     {
         static void Main(string[] args)
         {
+            Assembly assembly = Assembly.GetEntryAssembly();
+
+            string path = assembly.Location;
+            string exeFileName = Path.GetFileName(path);
+
             //Construct a receiver
-            //"FFFFFF21" is the SerialNumber of an Neruacle device
-            //"SKT" is one type collector of Neuracle product
+            //"9FFFFFF" is the SerialNumber of an Neruacle device
+            //"EMG" is one type collector of Neuracle product
             //Please contact Neruacle company for details
+            string biosimDataStreamName; // = "M_9FFFFFFF_EMG";
+            string biosimDataStreamType; // = "EMG";
 
-            //Just for debug
-            string biosimDataStreamName = "FFFFFF21_SKT";
-            string biosimDataStreamType = "SKT";
-
-            if(args.Length == 2)
+            if(args.Length != 2)
             {
-                biosimDataStreamName = args[0];
-                biosimDataStreamType = args[1];
-                Console.WriteLine($"args[0] = {args[0]}, args[1] = {args[1]}");
+                Console.WriteLine($"{exeFileName} <LSL Stream Name> <LSL Stream Type>");
+                Console.WriteLine($"\tExample：{exeFileName} M_9FFFFFFF_EMG EMG");
+                return;
+
             }
+            biosimDataStreamName = args[0];
+            biosimDataStreamType = args[1];
+            //Console.WriteLine($"args[0] = {args[0]}, args[1] = {args[1]}");
 
             NeuracleLSLReceiver neuracleLSLReceiver = new NeuracleLSLReceiver(biosimDataStreamName, biosimDataStreamType);
 
-            Console.WriteLine($"Start receive triggers...");
-            Task.Run(() => neuracleLSLReceiver.ReceiveTrigger());
+            //Console.WriteLine($"Start receive triggers...");
+            //Task.Run(() => neuracleLSLReceiver.ReceiveTrigger());
 
             Console.WriteLine($"Start receive biosim datas...");
             Task.Run(() => neuracleLSLReceiver.ReceiveBiosimData());
@@ -45,7 +53,7 @@ namespace Neuracle.LSLSample
                 Thread.Sleep(10);
             }
 
-            neuracleLSLReceiver.StopReceiveTrigger();
+            //neuracleLSLReceiver.StopReceiveTrigger();
             neuracleLSLReceiver.StopReceiveBiosimData();
         }
     }
@@ -154,7 +162,7 @@ namespace Neuracle.LSLSample
             bool foundTargetStream = false;
 
             int channelCount = 0;
-            int dataCount = 5;
+            int dataCount = 50;
             double sampleRate = 0.0;
 
             StreamInlet biosimDataInlet = null;
@@ -208,15 +216,38 @@ namespace Neuracle.LSLSample
 #if DEBUG
             //CSV file to save the biosim data for debugging
             StreamWriter _sw = new StreamWriter($".\\{_biosimDataStreamName}_LSLSubscriber_{DateTime.Now.ToString("yy_MM_dd_hhmmss")}.csv", false);
+            StreamInfo info = biosimDataInlet.Info();
+            XMLElement desc = info.Desc();
+            XMLElement channelsElement = desc.Child("channels");
+            XMLElement firstChannel = channelsElement.First_child();
+            XMLElement lastChannel = channelsElement.Last_child();
+            XMLElement currentChannel = firstChannel;
+            String title = "Timestamp,";
+            while(currentChannel.GetHashCode() != lastChannel.GetHashCode())
+            {
+                //Console.WriteLine($"Channel{index} = {currentChannel.Child("label").Child_value()}");
+                title += currentChannel.Child("label").Child_value() + ",";
+
+                currentChannel = currentChannel.Next_sibling();
+            }
+            title += currentChannel.Child("label").Child_value();
+            _sw.WriteLine(title);
+
 #endif
 
             // read samples
             float[,] buffer = new float[dataCount, channelCount];
             double[] timestamps = new double[dataCount];
+            int lastNum = 0;
             while (false == _stopReceiveDataEvent.WaitOne(1))
             {
                 int num = biosimDataInlet.Pull_chunk(buffer, timestamps);
 
+                if (num != 0 && num != lastNum)
+                {
+                    Console.WriteLine($"biosimDataInlet.Pull_chunk() returned {num}");
+                    lastNum = num;
+                }
                 //Console.WriteLine($"Received {timestamps.Length}ms datas");
 
 #if DEBUG
